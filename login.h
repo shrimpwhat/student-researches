@@ -2,7 +2,6 @@
 #define LOGIN_H
 
 #include <QGroupBox>
-#include <QMessageBox>
 #include <QtSql>
 
 namespace Ui {
@@ -17,7 +16,6 @@ public:
     explicit Login(QWidget *parent = nullptr);
     ~Login();
     void InitDatabase();
-    QMessageBox *message;
 
 private slots:
     void on_ConnectButton_clicked();

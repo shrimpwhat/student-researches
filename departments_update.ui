@@ -35,7 +35,7 @@
     <widget class="QLineEdit" name="NameInput"/>
    </item>
    <item row="4" column="0">
-    <widget class="QPushButton" name="InsertSubmit">
+    <widget class="QPushButton" name="pushButton">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -67,7 +67,7 @@
       <string notr="true"/>
      </property>
      <property name="text">
-      <string>Добавить</string>
+      <string>Сохранить</string>
      </property>
      <property name="autoRepeatInterval">
       <number>100</number>

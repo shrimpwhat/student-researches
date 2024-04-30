@@ -1,6 +1,8 @@
 #include "departments_insert.h"
 #include "ui_departments_insert.h"
+#include <QMessageBox>
 #include <QSqlQuery>
+#include <QSqlError>
 
 DepartmentsInsert::DepartmentsInsert(QWidget *parent) :
     QWidget(parent),
@@ -22,12 +24,14 @@ DepartmentsInsert::~DepartmentsInsert()
 
 void DepartmentsInsert::on_InsertSubmit_clicked()
 {
-    QSqlQuery *query = new QSqlQuery();
-    query->prepare("SELECT add_department(:code, :name)");
-    query->bindValue(":code", ui->CodeInput->text());
-    query->bindValue(":name", ui->NameInput->text());
-    query->exec();
-    close();
+    QSqlQuery query = QSqlQuery();
+    query.prepare("SELECT add_department(:code, :name)");
+    query.bindValue(":code", ui->CodeInput->text());
+    query.bindValue(":name", ui->NameInput->text());
+    if (query.exec())
+        close();
+    else
+        QMessageBox::critical(nullptr, "Ошибка", query.lastError().text());
 }
 
 

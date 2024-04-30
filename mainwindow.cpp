@@ -7,9 +7,11 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
     ui->Router->hide();
+
     login = new Login(this);
     login->setParent(ui->LoginBox);
     connect(login, &Login::on_DBConnected, this, &MainWindow::on_DBConnected);
+
     departments = new DepartmentsView(ui->Router);
     ui->Router->addTab(departments, "Кафедры");
 }
@@ -18,6 +20,7 @@ MainWindow::~MainWindow() {
     delete ui;
     delete login;
     delete departments;
+    delete qmodel;
 }
 
 void MainWindow::on_DBConnected() {

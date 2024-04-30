@@ -3,6 +3,8 @@
 #include "departments_update.h"
 #include <QMenu>
 #include <QDebug>
+#include <QMessageBox>
+#include <QSqlError>
 
 
 DepartmentsView::DepartmentsView(QWidget* parent): QWidget(parent),
@@ -16,6 +18,9 @@ DepartmentsView::DepartmentsView(QWidget* parent): QWidget(parent),
 DepartmentsView::~DepartmentsView()
 {
     delete ui;
+    delete qmodel;
+    delete insert_dialog;
+    delete update_dialog;
 }
 
 
@@ -32,10 +37,21 @@ void DepartmentsView::on_InsertDialogOpen_clicked() {
     insert_dialog->show();
 }
 
+
 void DepartmentsView::on_UpdateDialogOpen_clicked()
 {
     update_dialog = new DepartmentsUpdate(selected_id);
     update_dialog->show();
+}
+
+void DepartmentsView::on_DeleteRow_clicked()
+{
+    QSqlQuery query = QSqlQuery();
+    query.prepare("SELECT delete_department(:id)");
+    query.bindValue(":id", selected_id);
+    if (!query.exec())
+        QMessageBox::critical(nullptr, "Ошибка", query.lastError().text());
+    on_tableRefreshButton_clicked();
 }
 
 
@@ -44,30 +60,3 @@ void DepartmentsView::on_tableView_clicked(const QModelIndex &index) {
                  ->data(ui->tableView->model()->index(index.row(), 0))
                  .toInt();
 }
-
-void DepartmentsView::on_DeleteSubmit_clicked() {
-    QSqlQuery *query = new QSqlQuery();
-    query->prepare("SELECT delete_department(:ID)");
-    query->bindValue(":ID", selected_id);
-    query->exec();
-    DepartmentsView::on_tableRefreshButton_clicked();
-}
-
-void DepartmentsView::DelRecAction() {
-    QSqlQuery *query = new QSqlQuery();
-    query->prepare("DELETE FROM product WHERE ID = :ID");
-    query->bindValue(":ID", selected_id);
-    query->exec();
-    DepartmentsView::on_tableRefreshButton_clicked();
-}
-
-void DepartmentsView::ModRecAction() {
-    update_dialog = new DepartmentsUpdate();
-    connect(this, SIGNAL(sendID(int)), update_dialog, SLOT(sendingID(int)));
-    emit sendID(selected_id);
-    update_dialog->show();
-    disconnect(this, SIGNAL(sendID(int)), update_dialog, SLOT(sendingID(int)));
-}
-
-
-

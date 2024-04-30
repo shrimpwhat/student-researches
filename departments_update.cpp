@@ -2,7 +2,9 @@
 #include "ui_departments_update.h"
 
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QSqlQuery>
+#include <QSqlError>
 
 DepartmentsUpdate::DepartmentsUpdate(int id, QWidget *parent) :
     QWidget(parent),
@@ -10,6 +12,14 @@ DepartmentsUpdate::DepartmentsUpdate(int id, QWidget *parent) :
 {
     ui->setupUi(this);
     this->id = id;
+    QSqlQuery *query = new QSqlQuery();
+    query->prepare("SELECT * FROM departments WHERE id = :id");
+    query->bindValue(":id", id);
+    query->exec();
+    query->next();
+    ui->CodeInput->setText(query->value(1).toString());
+    ui->NameInput->setText(query->value(2).toString());
+//    ui->comboBox->setCurrentIndex(query->value(1).toInt()-1);
 }
 
 DepartmentsUpdate::~DepartmentsUpdate()
@@ -19,30 +29,14 @@ DepartmentsUpdate::~DepartmentsUpdate()
 
 void DepartmentsUpdate::on_pushButton_clicked()
 {
-    QSqlQuery *query = new QSqlQuery();
-    query->prepare("UPDATE product SET name = :name, catID = :category, ImagePath = :img, prodDate = :date WHERE ID = :ID");
-    query->bindValue(":ID", tempID);
-    query->bindValue(":name",ui->lineEdit->text());
-    query->bindValue(":category",ui->comboBox->currentIndex()+1);
-    query->bindValue(":date", ui->dateEdit->text());
-    if(query->exec())
-    {
+    QSqlQuery query = QSqlQuery();
+    query.prepare("SELECT edit_department(:id, :code, :name)");
+    query.bindValue(":id", id);
+    query.bindValue(":code", ui->CodeInput->text());
+    query.bindValue(":name", ui->NameInput->text());
+    if (query.exec())
         close();
-    }
-}
-
-void DepartmentsUpdate::sendingID(int aa)
-{
-    tempID = aa;
-    QSqlQuery *query = new QSqlQuery();
-    query->prepare("SELECT name, catID, ImagePath, prodDate FROM product WHERE ID = ?");
-    query->bindValue(0,aa);
-    if (query->exec())
-    {
-        query->next();
-        ui->lineEdit->setText(query->value(0).toString());
-        ui->comboBox->setCurrentIndex(query->value(1).toInt()-1);
-        ui->dateEdit->setDate(QDate::fromString(query->value(3).toString(), "yyyy-MM-dd"));
-    }
+    else
+        QMessageBox::critical(nullptr, "Ошибка", query.lastError().text());
 }
 

@@ -2,20 +2,18 @@
 #include "ui_login.h"
 #include <QtSql>
 #include <QDebug>
+#include <QMessageBox>
 
 Login::Login(QWidget *parent) :
     QGroupBox(parent),
     ui(new Ui::Login)
 {
     ui->setupUi(this);
-    message = new QMessageBox();
-    ui->ServerInput->setFocus();
 }
 
 Login::~Login()
 {
     delete ui;
-    delete message;
     db.close();
 }
 
@@ -52,9 +50,7 @@ void Login::on_ConnectButton_clicked()
 //    InitDatabase();
     InitDatabaseDebug();
     if (!db.open()) {
-        qDebug() << db.lastError();
-        message->setText("Соединение не установлено!");
-        message->show();
+        QMessageBox::critical(nullptr, "Ошибка", "Соединение не установлено");
         return;
     }
     emit on_DBConnected();
