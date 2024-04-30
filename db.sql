@@ -13,7 +13,7 @@ create table supervisors
     email          varchar(255) unique,
     phone_number   varchar(30) unique,
     department     integer references departments (id),
-    research_countS integer default 0
+    research_count integer default 0
 );
 
 create table students
@@ -439,6 +439,16 @@ begin
 end
 $$ language plpgsql;
 
+create or replace function on_update_funding()
+    returns trigger as
+$$
+begin
+    update researches set funding_sum = funding_sum - old.amount where id = old.research;
+    update researches set funding_sum = funding_sum + new.amount where id = new.research;
+    return new;
+end
+$$ language plpgsql;
+
 --TRIGGERS
 create trigger researches_insert_or_delete
     after insert or delete
@@ -495,3 +505,9 @@ create trigger funding_delete
     for each row
 execute function on_delete_funding();
 
+
+create trigger funding_update
+    after update
+    on funding
+    for each row
+execute function on_update_funding();
