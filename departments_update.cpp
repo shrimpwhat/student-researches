@@ -19,7 +19,6 @@ DepartmentsUpdate::DepartmentsUpdate(int id, QWidget *parent) :
     query->next();
     ui->CodeInput->setText(query->value(1).toString());
     ui->NameInput->setText(query->value(2).toString());
-//    ui->comboBox->setCurrentIndex(query->value(1).toInt()-1);
 }
 
 DepartmentsUpdate::~DepartmentsUpdate()

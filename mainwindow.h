@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 #include <QSqlQueryModel>
-#include "departments.h"
 #include "login.h"
 
 QT_BEGIN_NAMESPACE
@@ -30,6 +29,5 @@ private:
     QSqlQueryModel *qmodel;
     int fl = 0;
     int GlobId;
-    DepartmentsView* departments;
 };
 #endif // MAINWINDOW_H

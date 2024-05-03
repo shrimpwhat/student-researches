@@ -4,21 +4,20 @@
 #include <QWidget>
 #include <QMainWindow>
 #include <QSqlTableModel>
-#include "login.h"
 #include "departments_insert.h"
 #include "departments_update.h"
 
 namespace Ui {
-class DepartmentsView;
+class departments;
 }
 
-class DepartmentsView : public QWidget
+class departments : public QWidget
 {
     Q_OBJECT
 
 public:
-    DepartmentsView(QWidget *parent = nullptr);
-    ~DepartmentsView();
+    departments(QWidget *parent = nullptr);
+    ~departments();
 
 private slots:
     void on_tableRefreshButton_clicked();
@@ -35,11 +34,10 @@ signals:
     void sendID(int);
 
 private:
-    Ui::DepartmentsView *ui;
+    Ui::departments *ui;
     QSqlQueryModel *qmodel;
     DepartmentsInsert *insert_dialog;
     DepartmentsUpdate *update_dialog;
-    int fl = 0;
     int selected_id;
 };
 

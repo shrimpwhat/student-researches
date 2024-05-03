@@ -11,7 +11,7 @@ create table supervisors
     id             serial primary key,
     full_name      varchar(255) not null,
     email          varchar(255) unique,
-    phone_number   varchar(30) unique,
+    phone          varchar(30) unique,
     department     integer references departments (id),
     research_count integer default 0
 );
@@ -97,12 +97,13 @@ begin
 end;
 $$ language plpgsql;
 
+
 create or replace function add_supervisor(_full_name varchar(255), _email varchar(255), _phone_number varchar(30),
                                           _department integer)
     returns void as
 $$
 begin
-    insert into supervisors (full_name, email, phone_number, department)
+    insert into supervisors (full_name, email, phone, department)
     values (_full_name, _email, _phone_number, _department);
 end;
 $$ language plpgsql;
@@ -115,7 +116,7 @@ begin
     update supervisors
     set full_name    = _full_name,
         email        = _email,
-        phone_number = _phone_number,
+        phone = _phone_number,
         department   = _department
     where id = _id;
 end;
@@ -332,8 +333,6 @@ $$ language plpgsql;
 create or replace function modify_departments_supervisors_research_count()
     returns trigger as
 $$
-declare
-    _dif integer;
 begin
     case tg_op
         when 'INSERT' then select * from modify_department_research_count(new.department, 1);

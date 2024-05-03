@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "departments.h"
+#include "supervisors.h"
 #include <QtSql>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -12,14 +13,16 @@ MainWindow::MainWindow(QWidget *parent)
     login->setParent(ui->LoginBox);
     connect(login, &Login::on_DBConnected, this, &MainWindow::on_DBConnected);
 
-    departments = new DepartmentsView(ui->Router);
-    ui->Router->addTab(departments, "Кафедры");
+    auto departments_view = new departments(ui->Router);
+    ui->Router->addTab(departments_view, "Кафедры");
+
+    auto supervisors_view = new supervisors(ui->Router);
+    ui->Router->addTab(supervisors_view, "Руководители");
 }
 
 MainWindow::~MainWindow() {
     delete ui;
     delete login;
-    delete departments;
     delete qmodel;
 }
 

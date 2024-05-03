@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>departments</class>
- <widget class="QWidget" name="departments">
+ <class>supervisors</class>
+ <widget class="QWidget" name="supervisors">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>1010</width>
-    <height>510</height>
+    <height>516</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -56,17 +56,17 @@
     <number>70</number>
    </attribute>
   </widget>
-  <widget class="QPushButton" name="tableRefreshButton">
+  <widget class="QPushButton" name="DeleteRow">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>20</y>
+     <y>140</y>
      <width>121</width>
      <height>24</height>
     </rect>
    </property>
    <property name="text">
-    <string>Обновить данные</string>
+    <string>Удалить</string>
    </property>
   </widget>
   <widget class="QPushButton" name="InsertDialogOpen">
@@ -95,17 +95,17 @@
     <string>Изменить...</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="DeleteRow">
+  <widget class="QPushButton" name="tableRefreshButton">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>140</y>
+     <y>20</y>
      <width>121</width>
      <height>24</height>
     </rect>
    </property>
    <property name="text">
-    <string>Удалить</string>
+    <string>Обновить данные</string>
    </property>
   </widget>
  </widget>
