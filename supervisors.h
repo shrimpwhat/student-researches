@@ -30,9 +30,6 @@ private slots:
 
     void on_DeleteRow_clicked();
 
-signals:
-    void sendID(int);
-
 private:
     Ui::supervisors *ui;
     QSqlQueryModel *qmodel;

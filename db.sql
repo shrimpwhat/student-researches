@@ -21,7 +21,7 @@ create table students
     id           serial primary key,
     full_name    varchar(255) not null,
     email        varchar(255) unique,
-    phone_number varchar(30) unique,
+    phone varchar(30) unique,
     department   integer references departments (id)
 );
 
@@ -135,7 +135,7 @@ create or replace function add_student(_full_name varchar(255), _email varchar(2
     returns void as
 $$
 begin
-    insert into students (full_name, email, phone_number, department)
+    insert into students (full_name, email, phone, department)
     values (_full_name, _email, _phone_number, _department);
 end;
 $$ language plpgsql;
@@ -148,7 +148,7 @@ begin
     update students
     set full_name    = _full_name,
         email        = _email,
-        phone_number = _phone_number,
+        phone        = _phone_number,
         department   = _department
     where id = _id;
 end;
@@ -191,12 +191,9 @@ end;
 $$ language plpgsql;
 
 create or replace function edit_research(_id integer, _title varchar(255), _department integer, _field varchar(255),
-                                         _supervisor integer, _url varchar(500), _students integer[])
+                                         _supervisor integer, _url varchar(500))
     returns void as
 $$
-declare
-    research_id integer;
-    student_id  integer;
 begin
     update researches
     set title      = _title,
@@ -205,15 +202,9 @@ begin
         supervisor = _supervisor,
         url        = _url
     where id = _id;
-
-    delete from students_researches where research_id = _id;
-
-    foreach student_id in array _students
-        loop
-            insert into students_researches (student_id, research_id) values (student_id, _id);
-        end loop;
 end;
 $$ language plpgsql;
+
 
 create or replace function delete_research(_id integer)
     returns void as
@@ -223,6 +214,25 @@ begin
 end;
 $$ language plpgsql;
 
+
+create or replace function assign_research(_student integer, _research integer)
+    returns void as
+$$
+begin
+    insert into students_researches values (_student, _research);
+end;
+$$ language plpgsql;
+
+
+create or replace function unassign_research(_student integer, _research integer)
+          returns void as
+$$
+    begin
+        delete from students_researches where student_id = _student and research_id = _research;
+    end;
+$$ language plpgsql;
+
+
 create or replace function add_funding(_source varchar(255), _research integer, _amount integer, _date date)
     returns void as
 $$
@@ -230,6 +240,7 @@ begin
     insert into funding (source, research, amount, date) values (_source, _research, _amount, _date);
 end;
 $$ language plpgsql;
+
 
 create or replace function edit_funding(_id integer, _source varchar(255), _research integer, _amount integer,
                                         _date date)

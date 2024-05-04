@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "departments.h"
 #include "supervisors.h"
+#include "students.h"
 #include <QtSql>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -18,6 +19,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     auto supervisors_view = new supervisors(ui->Router);
     ui->Router->addTab(supervisors_view, "Руководители");
+
+    auto students_view = new students(ui->Router);
+    ui->Router->addTab(students_view, "Студенты");
 }
 
 MainWindow::~MainWindow() {

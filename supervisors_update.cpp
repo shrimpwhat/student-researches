@@ -25,7 +25,7 @@ supervisors_update::supervisors_update(int id, QWidget *parent) :
     ui->PhoneInput->setText(query->value(3).toString());
 
     while (queryCombo->next())
-        ui->comboBox->addItem(queryCombo->value(1).toString(), queryCombo->value(0));
+        ui->comboBox->addItem(queryCombo->value(1).toString(), queryCombo->value(0).toUInt());
     int index = ui->comboBox->findData(query->value(4));
     ui->comboBox->setCurrentIndex(index);
 

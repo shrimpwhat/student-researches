@@ -1,5 +1,6 @@
 #include "supervisors_insert.h"
 #include "ui_supervisors_insert.h"
+
 #include <QMessageBox>
 #include <QSqlQuery>
 #include <QSqlError>
@@ -12,7 +13,7 @@ supervisors_insert::supervisors_insert(QWidget *parent) :
     QSqlQuery *queryCombo = new QSqlQuery();
     queryCombo->exec("SELECT id, code FROM departments");
     while (queryCombo->next())
-        ui->comboBox->addItem(queryCombo->value(1).toString(), queryCombo->value(0));
+        ui->comboBox->addItem(queryCombo->value(1).toString(), queryCombo->value(0).toUInt());
     ui->comboBox->setCurrentIndex(-1);
 }
 
@@ -34,5 +35,3 @@ void supervisors_insert::on_InsertSubmit_clicked()
     else
         QMessageBox::critical(nullptr, "Ошибка", query.lastError().text());
 }
-
-
