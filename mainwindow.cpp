@@ -3,6 +3,7 @@
 #include "departments.h"
 #include "supervisors.h"
 #include "students.h"
+#include "researches.h"
 #include <QtSql>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -22,6 +23,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     auto students_view = new students(ui->Router);
     ui->Router->addTab(students_view, "Студенты");
+
+    auto researches_view = new researches(ui->Router);
+    ui->Router->addTab(researches_view, "Исследовательские работы");
 }
 
 MainWindow::~MainWindow() {
@@ -33,11 +37,4 @@ MainWindow::~MainWindow() {
 void MainWindow::on_DBConnected() {
     ui->LoginBox->hide();
     ui->Router->show();
-//    QSqlQuery *queryCombo = new QSqlQuery();
-//    queryCombo->exec("SELECT name FROM category");
-//    while (queryCombo->next())
-//    {
-//        ui->comboBox->addItem(queryCombo->value(0).toString());
-//    }
-//    MainWindow::on_tableRefreshButton_clicked();
 }

@@ -18,11 +18,11 @@ create table supervisors
 
 create table students
 (
-    id           serial primary key,
-    full_name    varchar(255) not null,
-    email        varchar(255) unique,
-    phone varchar(30) unique,
-    department   integer references departments (id)
+    id         serial primary key,
+    full_name  varchar(255) not null,
+    email      varchar(255) unique,
+    phone      varchar(30) unique,
+    department integer references departments (id)
 );
 
 create table researches
@@ -114,10 +114,10 @@ create or replace function edit_supervisor(_id integer, _full_name varchar(255),
 $$
 begin
     update supervisors
-    set full_name    = _full_name,
-        email        = _email,
-        phone = _phone_number,
-        department   = _department
+    set full_name  = _full_name,
+        email      = _email,
+        phone      = _phone_number,
+        department = _department
     where id = _id;
 end;
 $$ language plpgsql;
@@ -146,10 +146,10 @@ create or replace function edit_student(_id integer, _full_name varchar(255), _e
 $$
 begin
     update students
-    set full_name    = _full_name,
-        email        = _email,
-        phone        = _phone_number,
-        department   = _department
+    set full_name  = _full_name,
+        email      = _email,
+        phone      = _phone_number,
+        department = _department
     where id = _id;
 end;
 $$ language plpgsql;
@@ -162,33 +162,18 @@ begin
 end;
 $$ language plpgsql;
 
-create or replace procedure add_research(_title varchar(255), _department integer, _field varchar(255),
-                                         _supervisor integer, _url varchar(500), _students integer[])
-as
+
+create or replace function add_research(_title varchar(255), _department integer, _field varchar(255),
+                                        _supervisor integer, _url varchar(500))
+    returns void
+    language plpgsql as
 $$
-declare
-    research_id integer;
-    student_id  integer;
 begin
-    start transaction;
     insert into researches (title, department, field, supervisor, url)
-    values (_title, _department, _field, _supervisor, _url)
-    returning id into research_id;
-
-    foreach student_id in array _students
-        loop
-            insert into students_researches (student_id, research_id) values (student_id, research_id);
-        end loop;
-
-
-    if exists (select 1 from researches where title = _title and id <> research_id) then
-        rollback;
-        raise notice 'research with title=% already exists', _title;
-        return;
-    end if;
-    commit;
+    values (_title, _department, _field, _supervisor, _url);
 end;
-$$ language plpgsql;
+$$;
+
 
 create or replace function edit_research(_id integer, _title varchar(255), _department integer, _field varchar(255),
                                          _supervisor integer, _url varchar(500))
@@ -225,11 +210,11 @@ $$ language plpgsql;
 
 
 create or replace function unassign_research(_student integer, _research integer)
-          returns void as
+    returns void as
 $$
-    begin
-        delete from students_researches where student_id = _student and research_id = _research;
-    end;
+begin
+    delete from students_researches where student_id = _student and research_id = _research;
+end;
 $$ language plpgsql;
 
 
@@ -346,10 +331,14 @@ create or replace function modify_departments_supervisors_research_count()
 $$
 begin
     case tg_op
-        when 'INSERT' then select * from modify_department_research_count(new.department, 1);
-                           select * from modify_supervisor_research_count(new.supervisor, 1);
-        when 'DELETE' then select * from modify_department_research_count(old.department, -1);
-                           select * from modify_supervisor_research_count(old.supervisor, -1);
+        when 'INSERT' then begin
+            perform modify_department_research_count(new.department, 1);
+            perform modify_supervisor_research_count(new.supervisor, 1);
+        end;
+        when 'DELETE' then begin
+            perform modify_department_research_count(old.department, -1);
+            perform modify_supervisor_research_count(old.supervisor, -1);
+        end;
         end case;
     return new;
 end;
@@ -361,8 +350,8 @@ create or replace function modify_research_count(_table varchar, _id integer, _d
 $$
 begin
     case _table
-        when 'departments' then select * from modify_department_research_count(_id, _dif);
-        when 'supervisors' then select * from modify_supervisor_research_count(_id, _dif);
+        when 'departments' then perform modify_department_research_count(_id, _dif);
+        when 'supervisors' then perform modify_supervisor_research_count(_id, _dif);
         end case;
 end;
 $$ language plpgsql;
@@ -376,13 +365,13 @@ begin
     end if;
 
     if old.department <> new.department then
-        select * from modify_research_count('departments', old.department, -1);
-        select * from modify_research_count('departments', new.department, 1);
+        perform modify_research_count('departments', old.department, -1);
+        perform modify_research_count('departments', new.department, 1);
     end if;
 
     if old.supervisor <> new.supervisor then
-        select * from modify_research_count('supervisors', old.supervisor, -1);
-        select * from modify_research_count('supervisors', new.supervisor, 1);
+        perform modify_research_count('supervisors', old.supervisor, -1);
+        perform modify_research_count('supervisors', new.supervisor, 1);
     end if;
 
     return new;
@@ -449,6 +438,7 @@ begin
 end
 $$ language plpgsql;
 
+
 create or replace function on_update_funding()
     returns trigger as
 $$
@@ -458,6 +448,7 @@ begin
     return new;
 end
 $$ language plpgsql;
+
 
 --TRIGGERS
 create trigger researches_insert_or_delete
