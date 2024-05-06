@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>students</class>
- <widget class="QWidget" name="students">
+ <class>students_researches</class>
+ <widget class="QWidget" name="students_researches">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>1010</width>
-    <height>516</height>
+    <height>517</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <widget class="QPushButton" name="DeleteRow">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>140</y>
+     <x>100</x>
+     <y>180</y>
      <width>121</width>
      <height>24</height>
     </rect>
@@ -26,37 +26,11 @@
     <string>Удалить</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="UpdateDialogOpen">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>100</y>
-     <width>121</width>
-     <height>24</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Изменить...</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="InsertDialogOpen">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>60</y>
-     <width>121</width>
-     <height>24</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Добавить...</string>
-   </property>
-  </widget>
   <widget class="QPushButton" name="tableRefreshButton">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>20</y>
+     <x>100</x>
+     <y>10</y>
      <width>121</width>
      <height>24</height>
     </rect>
@@ -68,9 +42,9 @@
   <widget class="QTableView" name="tableView">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>320</x>
      <y>20</y>
-     <width>841</width>
+     <width>671</width>
      <height>471</height>
     </rect>
    </property>
@@ -108,17 +82,27 @@
     <number>70</number>
    </attribute>
   </widget>
-  <widget class="QPushButton" name="showResearches">
+  <widget class="QPushButton" name="InsertDialogOpen">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>180</y>
+     <x>100</x>
+     <y>110</y>
      <width>121</width>
      <height>24</height>
     </rect>
    </property>
    <property name="text">
-    <string>Посмотреть работы</string>
+    <string>Добавить</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="comboBox">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>70</y>
+     <width>291</width>
+     <height>24</height>
+    </rect>
    </property>
   </widget>
  </widget>

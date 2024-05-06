@@ -2,6 +2,7 @@
 #define STUDENTS_H
 
 #include "students_insert.h"
+#include "students_researches.h"
 #include "students_update.h"
 
 #include <QWidget>
@@ -30,11 +31,14 @@ private slots:
 
     void on_DeleteRow_clicked();
 
+    void on_showResearches_clicked();
+
 private:
     Ui::students *ui;
     QSqlQueryModel *qmodel;
     students_insert *insert_dialog;
     students_update *update_dialog;
+    students_researches* researches;
     int selected_id;
 };
 

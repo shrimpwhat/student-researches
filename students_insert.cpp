@@ -10,10 +10,10 @@ students_insert::students_insert(QWidget *parent) :
     ui(new Ui::students_insert)
 {
     ui->setupUi(this);
-    QSqlQuery *queryCombo = new QSqlQuery();
-    queryCombo->exec("SELECT id, code FROM departments");
-    while (queryCombo->next()) {
-        ui->comboBox->addItem(queryCombo->value(1).toString(), queryCombo->value(0));
+    QSqlQuery queryCombo = QSqlQuery();
+    queryCombo.exec("SELECT id, code FROM departments");
+    while (queryCombo.next()) {
+        ui->comboBox->addItem(queryCombo.value(1).toString(), queryCombo.value(0));
     }
     ui->comboBox->setCurrentIndex(-1);
 }

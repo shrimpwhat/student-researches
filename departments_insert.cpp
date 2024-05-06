@@ -9,12 +9,6 @@ DepartmentsInsert::DepartmentsInsert(QWidget *parent) :
     ui(new Ui::DepartmentsInsert)
 {
     ui->setupUi(this);
-//    QSqlQuery *queryCombo = new QSqlQuery();
-//    queryCombo->exec("SELECT name FROM category");
-//    while (queryCombo->next())
-//    {
-//        ui->comboBox->addItem(queryCombo->value(0).toString());
-//    }
 }
 
 DepartmentsInsert::~DepartmentsInsert()

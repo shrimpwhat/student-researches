@@ -11,22 +11,22 @@ supervisors_update::supervisors_update(int id, QWidget *parent) :
 {
     ui->setupUi(this);
     this->id = id;
-    QSqlQuery *query = new QSqlQuery();
-    query->prepare("SELECT * FROM supervisors WHERE id = :id");
+    QSqlQuery query = QSqlQuery();
+    query.prepare("SELECT * FROM supervisors WHERE id = :id");
 
-    QSqlQuery *queryCombo = new QSqlQuery();
-    queryCombo->exec("SELECT id, code FROM departments");
+    QSqlQuery queryCombo = QSqlQuery();
+    queryCombo.exec("SELECT id, code FROM departments");
 
-    query->bindValue(":id", id);
-    query->exec();
-    query->next();
-    ui->NameInput->setText(query->value(1).toString());
-    ui->EmailInput->setText(query->value(2).toString());
-    ui->PhoneInput->setText(query->value(3).toString());
+    query.bindValue(":id", id);
+    query.exec();
+    query.next();
+    ui->NameInput->setText(query.value(1).toString());
+    ui->EmailInput->setText(query.value(2).toString());
+    ui->PhoneInput->setText(query.value(3).toString());
 
-    while (queryCombo->next())
-        ui->comboBox->addItem(queryCombo->value(1).toString(), queryCombo->value(0).toUInt());
-    int index = ui->comboBox->findData(query->value(4));
+    while (queryCombo.next())
+        ui->comboBox->addItem(queryCombo.value(1).toString(), queryCombo.value(0).toUInt());
+    int index = ui->comboBox->findData(query.value(4));
     ui->comboBox->setCurrentIndex(index);
 
 }

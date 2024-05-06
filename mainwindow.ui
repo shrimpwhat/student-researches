@@ -20,7 +20,7 @@
    <widget class="QGroupBox" name="LoginBox">
     <property name="geometry">
      <rect>
-      <x>420</x>
+      <x>380</x>
       <y>40</y>
       <width>261</width>
       <height>440</height>

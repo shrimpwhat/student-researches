@@ -21,6 +21,7 @@ students::~students()
     delete qmodel;
     delete insert_dialog;
     delete update_dialog;
+    delete researches;
 }
 
 
@@ -59,3 +60,10 @@ void students::on_tableView_clicked(const QModelIndex &index) {
                  ->data(ui->tableView->model()->index(index.row(), 0))
                  .toInt();
 }
+
+void students::on_showResearches_clicked()
+{
+    researches = new students_researches(selected_id);
+    researches->show();
+}
+

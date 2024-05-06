@@ -12,13 +12,13 @@ DepartmentsUpdate::DepartmentsUpdate(int id, QWidget *parent) :
 {
     ui->setupUi(this);
     this->id = id;
-    QSqlQuery *query = new QSqlQuery();
-    query->prepare("SELECT * FROM departments WHERE id = :id");
-    query->bindValue(":id", id);
-    query->exec();
-    query->next();
-    ui->CodeInput->setText(query->value(1).toString());
-    ui->NameInput->setText(query->value(2).toString());
+    QSqlQuery query = QSqlQuery();
+    query.prepare("SELECT * FROM departments WHERE id = :id");
+    query.bindValue(":id", id);
+    query.exec();
+    query.next();
+    ui->CodeInput->setText(query.value(1).toString());
+    ui->NameInput->setText(query.value(2).toString());
 }
 
 DepartmentsUpdate::~DepartmentsUpdate()

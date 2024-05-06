@@ -10,15 +10,15 @@ researches_insert::researches_insert(QWidget *parent) :
     ui(new Ui::researches_insert)
 {
     ui->setupUi(this);
-    QSqlQuery *queryCombo = new QSqlQuery();
-    queryCombo->exec("SELECT id, code FROM departments");
-    while (queryCombo->next())
-        ui->departmentCombo->addItem(queryCombo->value(1).toString(), queryCombo->value(0));
+    QSqlQuery queryCombo = QSqlQuery();
+    queryCombo.exec("SELECT id, code FROM departments");
+    while (queryCombo.next())
+        ui->departmentCombo->addItem(queryCombo.value(1).toString(), queryCombo.value(0));
     ui->departmentCombo->setCurrentIndex(-1);
 
-    queryCombo->exec("SELECT id, full_name FROM supervisors");
-    while (queryCombo->next())
-        ui->supervisorCombo->addItem(queryCombo->value(1).toString(), queryCombo->value(0));
+    queryCombo.exec("SELECT id, full_name FROM supervisors");
+    while (queryCombo.next())
+        ui->supervisorCombo->addItem(queryCombo.value(1).toString(), queryCombo.value(0));
     ui->supervisorCombo->setCurrentIndex(-1);
 }
 

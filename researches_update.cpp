@@ -11,28 +11,28 @@ researches_update::researches_update(int id, QWidget *parent) :
 {
     ui->setupUi(this);
     this->id = id;
-    QSqlQuery *query = new QSqlQuery();
-    query->prepare("SELECT * FROM researches WHERE id = :id");
-    query->bindValue(":id", id);
+    QSqlQuery query = QSqlQuery();
+    query.prepare("SELECT * FROM researches WHERE id = :id");
+    query.bindValue(":id", id);
 
-    QSqlQuery *queryCombo = new QSqlQuery();
-    queryCombo->exec("SELECT id, code FROM departments");
+    QSqlQuery queryCombo = QSqlQuery();
+    queryCombo.exec("SELECT id, code FROM departments");
 
-    query->exec();
-    query->next();
-    ui->NameInput->setText(query->value(1).toString());
-    ui->FieldInput->setText(query->value(3).toString());
-    ui->URLInput->setText(query->value(5).toString());
+    query.exec();
+    query.next();
+    ui->NameInput->setText(query.value(1).toString());
+    ui->FieldInput->setText(query.value(3).toString());
+    ui->URLInput->setText(query.value(5).toString());
 
-    while (queryCombo->next())
-        ui->departmentCombo->addItem(queryCombo->value(1).toString(), queryCombo->value(0));
-    int index = ui->departmentCombo->findData(query->value(2));
+    while (queryCombo.next())
+        ui->departmentCombo->addItem(queryCombo.value(1).toString(), queryCombo.value(0));
+    int index = ui->departmentCombo->findData(query.value(2));
     ui->departmentCombo->setCurrentIndex(index);
 
-    queryCombo->exec("SELECT id, full_name FROM supervisors");
-    while (queryCombo->next())
-        ui->supervisorCombo->addItem(queryCombo->value(1).toString(), queryCombo->value(0));
-    index = ui->supervisorCombo->findData(query->value(4));
+    queryCombo.exec("SELECT id, full_name FROM supervisors");
+    while (queryCombo.next())
+        ui->supervisorCombo->addItem(queryCombo.value(1).toString(), queryCombo.value(0));
+    index = ui->supervisorCombo->findData(query.value(4));
     ui->supervisorCombo->setCurrentIndex(index);
 
 }

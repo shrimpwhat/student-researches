@@ -10,10 +10,10 @@ supervisors_insert::supervisors_insert(QWidget *parent) :
     ui(new Ui::supervisors_insert)
 {
     ui->setupUi(this);
-    QSqlQuery *queryCombo = new QSqlQuery();
-    queryCombo->exec("SELECT id, code FROM departments");
-    while (queryCombo->next())
-        ui->comboBox->addItem(queryCombo->value(1).toString(), queryCombo->value(0).toUInt());
+    QSqlQuery queryCombo = QSqlQuery();
+    queryCombo.exec("SELECT id, code FROM departments");
+    while (queryCombo.next())
+        ui->comboBox->addItem(queryCombo.value(1).toString(), queryCombo.value(0).toUInt());
     ui->comboBox->setCurrentIndex(-1);
 }
 
