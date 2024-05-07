@@ -4,7 +4,6 @@
 #include "students_insert.h"
 #include "students_researches.h"
 #include "students_update.h"
-
 #include <QWidget>
 #include <QSqlQueryModel>
 
