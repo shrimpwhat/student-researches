@@ -40,6 +40,10 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
                 funding.h funding.cpp funding.ui
                 funding_insert.h funding_insert.cpp funding_insert.ui
                 funding_update.h funding_update.cpp funding_update.ui
+                reports.h reports.cpp reports.ui
+                reports_insert.h reports_insert.cpp reports_insert.ui
+                reports_update.h reports_update.cpp reports_update.ui
+                researches_reports.h researches_reports.cpp researches_reports.ui
         )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET CW2 APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

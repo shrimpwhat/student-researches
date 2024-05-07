@@ -249,46 +249,28 @@ begin
 end;
 $$ language plpgsql;
 
-create or replace function add_report(_name varchar(255), _description varchar(500), _date date, _researches integer[])
+
+create or replace function add_report(_name varchar(255), _description varchar(500), _date date)
     returns void as
 $$
-declare
-    report_id   integer;
-    research_id integer;
 begin
-    insert into reports (name, description, date)
-    values (_name, _description, _date)
-    returning id into report_id;
-
-    foreach research_id in array _researches
-        loop
-            insert into research_reports (research_id, report_id) values (research_id, report_id);
-        end loop;
+    insert into reports (name, description, date) values (_name, _description, _date);
 end;
 $$ language plpgsql;
 
-create or replace function edit_report(_id integer, _name varchar(255), _description varchar(500), _date date,
-                                       _researches integer[])
+
+create or replace function edit_report(_id integer, _name varchar(255), _description varchar(500), _date date)
     returns void as
 $$
-declare
-    report_id   integer;
-    research_id integer;
 begin
     update reports
     set name        = _name,
         description = _description,
         date        = _date
     where id = _id;
-
-    delete from research_reports where report_id = _id;
-
-    foreach research_id in array _researches
-        loop
-            insert into research_reports (research_id, report_id) values (research_id, _id);
-        end loop;
 end;
 $$ language plpgsql;
+
 
 create or replace function delete_report(_id integer)
     returns void as
@@ -297,6 +279,7 @@ begin
     delete from reports where id = _id;
 end;
 $$ language plpgsql;
+
 
 create or replace function modify_department_research_count(_id integer, _dif integer)
     returns void as
@@ -447,6 +430,24 @@ begin
     update researches set funding_sum = funding_sum + new.amount where id = new.research;
     return new;
 end
+$$ language plpgsql;
+
+
+create or replace function assign_report(_research integer, _report integer)
+    returns void as
+$$
+begin
+    insert into research_reports values (_research, _report);
+end;
+$$ language plpgsql;
+
+
+create or replace function unassign_report(_research integer, _report integer)
+    returns void as
+$$
+begin
+    delete from research_reports where research_id = _research and report_id = _report;
+end;
 $$ language plpgsql;
 
 

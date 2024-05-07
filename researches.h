@@ -2,6 +2,7 @@
 #define RESEARCHES_H
 
 #include "researches_insert.h"
+#include "researches_reports.h"
 #include "researches_update.h"
 
 #include <QWidget>
@@ -30,12 +31,15 @@ private slots:
 
     void on_DeleteRow_clicked();
 
+    void on_showReports_clicked();
+
 private:
     Ui::researches *ui;
     QSqlQueryModel *qmodel;
     researches_insert *insert_dialog;
     researches_update *update_dialog;
     int selected_id;
+    researches_reports* reports;
 };
 
 #endif // RESEARCHES_H

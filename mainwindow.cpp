@@ -5,6 +5,7 @@
 #include "students.h"
 #include "researches.h"
 #include "funding.h"
+#include "reports.h"
 #include <QtSql>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -30,6 +31,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     auto funding_view = new funding(ui->Router);
     ui->Router->addTab(funding_view, "Финансирование");
+
+    auto reports_view = new reports(ui->Router);
+    ui->Router->addTab(reports_view, "Доклады, публикации");
 }
 
 MainWindow::~MainWindow() {
