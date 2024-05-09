@@ -31,8 +31,6 @@ private slots:
 
     void on_DeleteRow_clicked();
 
-    void on_showReports_clicked();
-
 private:
     Ui::researches *ui;
     QSqlQueryModel *qmodel;

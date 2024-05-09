@@ -43,7 +43,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
                 reports.h reports.cpp reports.ui
                 reports_insert.h reports_insert.cpp reports_insert.ui
                 reports_update.h reports_update.cpp reports_update.ui
-                researches_reports.h researches_reports.cpp researches_reports.ui
+
         )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET CW2 APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

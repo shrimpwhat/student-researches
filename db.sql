@@ -6,6 +6,7 @@ create table departments
     research_count integer default 0
 );
 
+
 create table supervisors
 (
     id             serial primary key,
@@ -16,6 +17,7 @@ create table supervisors
     research_count integer default 0
 );
 
+
 create table students
 (
     id         serial primary key,
@@ -24,6 +26,7 @@ create table students
     phone      varchar(30) unique,
     department integer references departments (id)
 );
+
 
 create table researches
 (
@@ -36,12 +39,14 @@ create table researches
     funding_sum integer default 0
 );
 
+
 create table students_researches
 (
     student_id  integer references students (id),
     research_id integer references researches (id),
     primary key (student_id, research_id)
 );
+
 
 create table funding
 (
@@ -52,25 +57,21 @@ create table funding
     date     date
 );
 
+
 create table reports
 (
-    id          serial primary key,
-    name        varchar(255) not null,
-    description varchar(500),
-    date        date
+    id       serial primary key,
+    name     varchar(255) not null,
+    date     date,
+    research integer references researches (id)
 );
 
-create table research_reports
-(
-    research_id integer references researches (id),
-    report_id   integer references reports (id),
-    primary key (research_id, report_id)
-);
 
 --INDEXES
 create index idx_students_name on students (full_name);
 create index idx_supervisors_name on supervisors (full_name);
 create index idx_researches_field on researches (field);
+
 
 --FUNCTIONS
 create or replace function add_department(_code varchar(10), _name varchar(255))
@@ -88,6 +89,7 @@ begin
     update departments set code = _code, name = _name where id = _id;
 end;
 $$ language plpgsql;
+
 
 create or replace function delete_department(_id integer)
     returns void as
@@ -108,6 +110,7 @@ begin
 end;
 $$ language plpgsql;
 
+
 create or replace function edit_supervisor(_id integer, _full_name varchar(255), _email varchar(255),
                                            _phone_number varchar(30), _department integer)
     returns void as
@@ -122,6 +125,7 @@ begin
 end;
 $$ language plpgsql;
 
+
 create or replace function delete_supervisor(_id integer)
     returns void as
 $$
@@ -129,6 +133,7 @@ begin
     delete from supervisors where id = _id;
 end;
 $$ language plpgsql;
+
 
 create or replace function add_student(_full_name varchar(255), _email varchar(255), _phone_number varchar(30),
                                        _department integer)
@@ -139,6 +144,7 @@ begin
     values (_full_name, _email, _phone_number, _department);
 end;
 $$ language plpgsql;
+
 
 create or replace function edit_student(_id integer, _full_name varchar(255), _email varchar(255),
                                         _phone_number varchar(30), _department integer)
@@ -153,6 +159,7 @@ begin
     where id = _id;
 end;
 $$ language plpgsql;
+
 
 create or replace function delete_student(_id integer)
     returns void as
@@ -250,23 +257,24 @@ end;
 $$ language plpgsql;
 
 
-create or replace function add_report(_name varchar(255), _description varchar(500), _date date)
+create or replace function add_report(_name varchar(255), _date date, _research integer)
     returns void as
 $$
 begin
-    insert into reports (name, description, date) values (_name, _description, _date);
+    insert into reports (name, date, research) values (_name, _date, _research);
 end;
 $$ language plpgsql;
 
 
-create or replace function edit_report(_id integer, _name varchar(255), _description varchar(500), _date date)
+create or replace function edit_report(_id integer, _name varchar(255), _date date,
+                                       _research integer)
     returns void as
 $$
 begin
     update reports
-    set name        = _name,
-        description = _description,
-        date        = _date
+    set name     = _name,
+        date     = _date,
+        research = _research
     where id = _id;
 end;
 $$ language plpgsql;
@@ -392,16 +400,6 @@ end
 $$ language plpgsql;
 
 
-create or replace function on_delete_report()
-    returns trigger as
-$$
-begin
-    delete from research_reports where report_id = old.id;
-    return new;
-end
-$$ language plpgsql;
-
-
 create or replace function on_insert_funding()
     returns trigger as
 $$
@@ -430,24 +428,6 @@ begin
     update researches set funding_sum = funding_sum + new.amount where id = new.research;
     return new;
 end
-$$ language plpgsql;
-
-
-create or replace function assign_report(_research integer, _report integer)
-    returns void as
-$$
-begin
-    insert into research_reports values (_research, _report);
-end;
-$$ language plpgsql;
-
-
-create or replace function unassign_report(_research integer, _report integer)
-    returns void as
-$$
-begin
-    delete from research_reports where research_id = _research and report_id = _report;
-end;
 $$ language plpgsql;
 
 
@@ -485,13 +465,6 @@ create trigger students_delete
     on students
     for each row
 execute function on_delete_student();
-
-
-create trigger reports_delete
-    after delete
-    on reports
-    for each row
-execute function on_delete_report();
 
 
 create trigger funding_insert

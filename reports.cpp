@@ -25,7 +25,7 @@ reports::~reports()
 
 
 void reports::on_tableRefreshButton_clicked() {
-    qmodel->setQuery("select * from reports;");
+    qmodel->setQuery("select id, name, date, (select title from researches where researches.id = research) as research from reports;");
     ui->tableView->setModel(qmodel);
     ui->tableView->hideColumn(0);
 }

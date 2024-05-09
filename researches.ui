@@ -108,19 +108,6 @@
     <string>Обновить данные</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="showReports">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>180</y>
-     <width>121</width>
-     <height>24</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Посмотреть отчеты</string>
-   </property>
-  </widget>
  </widget>
  <resources/>
  <connections/>

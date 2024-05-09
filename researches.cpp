@@ -63,10 +63,3 @@ void researches::on_tableView_clicked(const QModelIndex &index) {
                  ->data(ui->tableView->model()->index(index.row(), 0))
                  .toInt();
 }
-
-
-void researches::on_showReports_clicked()
-{
-    reports = new researches_reports(selected_id);
-    reports->show();
-}
