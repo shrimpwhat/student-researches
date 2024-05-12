@@ -602,3 +602,22 @@ create trigger on_supervisors_view_delete
     on supervisors_view
     for each row
 execute function supervisors_view_delete();
+
+
+--3.c
+create materialized view students_view as
+select *
+from students;
+
+
+--3.d подзапрос в from
+create or replace function get_students_researches(_student integer)
+    returns character varying
+as
+$$
+select title
+from (select *
+      from researches
+      where id in (select research_id from students_researches where student_id = _student)) as r
+$$ language sql;
+
