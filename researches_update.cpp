@@ -45,7 +45,7 @@ researches_update::~researches_update()
 void researches_update::on_InsertSubmit_clicked()
 {
     QSqlQuery query = QSqlQuery();
-    query.prepare("SELECT edit_research(:id, :title, :department, :field, :supervisor, :url)");
+    query.prepare("CALL edit_research(:id, :title, :department, :field, :supervisor, :url)");
     query.bindValue(":id", id);
     query.bindValue(":title", ui->NameInput->text());
     query.bindValue(":department", ui->departmentCombo->currentData());

@@ -68,9 +68,9 @@ create table reports
 
 
 --INDEXES
-create index idx_students_name on students (full_name);
-create index idx_supervisors_name on supervisors (full_name);
-create index idx_researches_field on researches (field);
+create index idx_researches_title on researches (title);
+create index idx_students_name on students (lower(full_name));
+create index idx_supervisors_name on supervisors using brin (full_name);
 
 
 --FUNCTIONS
@@ -81,6 +81,7 @@ begin
     insert into departments (code, name) values (_code, _name);
 end;
 $$ language plpgsql;
+
 
 create or replace function edit_department(_id integer, _code varchar(10), _name varchar(255))
     returns void as
@@ -431,6 +432,19 @@ end
 $$ language plpgsql;
 
 
+create or replace procedure assign_research_to_students(_research integer, _students integer[])
+    language plpgsql
+as
+$$
+begin
+    for student in _students
+        loop
+            insert into students_researches values (student, _research);
+        end loop;
+end
+$$;
+
+
 --TRIGGERS
 create trigger researches_insert_or_delete
     after insert or delete
@@ -486,3 +500,105 @@ create trigger funding_update
     on funding
     for each row
 execute function on_update_funding();
+
+
+-- TASKS
+-- 3.a
+create type statuses as
+(
+    Название               varchar(255),
+    "Сумма финансирования" bigint,
+    "Статус"               text
+);
+create or replace function get_research_statuses()
+    returns setof statuses
+as
+$$
+select r.title,
+       sum(f.amount),
+       case
+           when sum(f.amount) = 0 then 'Без финансирования'
+           when sum(f.amount) < 10000 then 'Небольшое финансирование'
+           when sum(f.amount) < 50000 then 'Среднее финансирование'
+           else 'Большое финансирование'
+           end
+from researches as r
+         join funding as f on r.id = f.research
+group by r.title;
+$$ language sql;
+
+-- 3.b
+create view supervisors_view as
+select s.*, d.name, d.code
+from supervisors as s
+         join departments as d on s.department = d.id;
+
+create or replace function supervisors_view_insert()
+    returns trigger
+as
+$$
+declare
+    dep_id integer;
+begin
+    if new.department is null then
+        insert into departments (code, name) values (new.code, new.name) returning id into dep_id;
+    else
+        dep_id = new.department;
+    end if;
+    insert into supervisors (full_name, department) values (new.full_name, dep_id);
+    return null;
+end
+$$ language plpgsql;
+
+
+create trigger on_supervisors_view_insert
+    instead of insert
+    on supervisors_view
+    for each row
+execute function supervisors_view_insert();
+
+
+create or replace function supervisors_view_update()
+    returns trigger
+as
+$$
+begin
+    update supervisors
+    set full_name  = new.full_name,
+        department = new.department
+    where id = old.id;
+
+    if old.department = new.department then
+        update departments
+        set code = new.code,
+            name = new.name
+        where id = old.department;
+    end if;
+    return null;
+end
+$$ language plpgsql;
+
+
+create trigger on_supervisors_view_update
+    instead of update
+    on supervisors_view
+    for each row
+execute function supervisors_view_update();
+
+
+create or replace function supervisors_view_delete()
+    returns trigger
+as
+$$
+begin
+    delete from supervisors where id = old.id;
+    return null;
+end
+$$ language plpgsql;
+
+
+create trigger on_supervisors_view_delete
+    instead of delete
+    on supervisors_view
+    for each row
+execute function supervisors_view_delete();

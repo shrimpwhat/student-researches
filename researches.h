@@ -2,7 +2,6 @@
 #define RESEARCHES_H
 
 #include "researches_insert.h"
-#include "researches_reports.h"
 #include "researches_update.h"
 
 #include <QWidget>
@@ -37,7 +36,6 @@ private:
     researches_insert *insert_dialog;
     researches_update *update_dialog;
     int selected_id;
-    researches_reports* reports;
 };
 
 #endif // RESEARCHES_H

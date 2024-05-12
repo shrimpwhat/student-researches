@@ -112,7 +112,7 @@
       <string notr="true"/>
      </property>
      <property name="text">
-      <string>Добавить</string>
+      <string>Изменить</string>
      </property>
      <property name="autoRepeatInterval">
       <number>100</number>
