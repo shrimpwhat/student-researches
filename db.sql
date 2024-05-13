@@ -651,3 +651,41 @@ select f.*
 from funding as f
 where exists(select * from researches as r where r.id = f.research);
 $$ language sql;
+
+
+--3.f
+create or replace function count_funding_of_field()
+    returns table
+            (
+                field character varying,
+                sum   bigint
+            )
+as
+$$
+select r.field, sum(f.amount)
+from funding as f
+         join researches r on f.research = r.id
+group by r.field
+having sum(f.amount) > 0;
+$$ language sql;
+
+
+--3.g
+create or replace function get_researches_with_min_count(_count integer)
+    returns setof researches
+as
+$$
+select *
+from researches as r
+where r.department = any (select d.id from departments d where d.research_count >= _count);
+$$ language sql;
+
+
+create or replace function get_productive_supervisors()
+    returns setof supervisors
+as
+$$
+select *
+from supervisors as s
+where s.research_count > all (select d.research_count from departments d);
+$$ language sql;
