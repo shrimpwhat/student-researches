@@ -621,3 +621,33 @@ from (select *
       where id in (select research_id from students_researches where student_id = _student)) as r
 $$ language sql;
 
+
+--3.e
+create or replace function get_students()
+    returns setof students
+as
+$$
+select s.*
+from students as s
+where exists(select * from departments as d where d.id = s.department);
+$$ language sql;
+
+
+create or replace function get_researches()
+    returns setof researches
+as
+$$
+select r.*
+from researches as r
+where exists(select * from supervisors as s where s.id = r.supervisor);
+$$ language sql;
+
+
+create or replace function get_funding()
+    returns setof funding
+as
+$$
+select f.*
+from funding as f
+where exists(select * from researches as r where r.id = f.research);
+$$ language sql;
