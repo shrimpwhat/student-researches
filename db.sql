@@ -689,3 +689,43 @@ select *
 from supervisors as s
 where s.research_count > all (select d.research_count from departments d);
 $$ language sql;
+
+
+-- CURSOR
+CREATE OR REPLACE FUNCTION clear_research_count(_dep integer)
+    RETURNS void AS
+$$
+DECLARE
+    _curs refcursor;
+    _rec  record;
+BEGIN
+    OPEN _curs FOR SELECT * FROM supervisors where department = _dep;
+
+    LOOP
+        FETCH NEXT FROM _curs INTO _rec;
+        EXIT WHEN NOT FOUND;
+        UPDATE supervisors SET research_count = 0 where current of _curs;
+    END LOOP;
+
+    CLOSE _curs;
+END
+$$ LANGUAGE plpgsql;
+
+
+-- 10
+create or replace function get_reports()
+    returns setof reports
+as
+$$
+select *
+from reports
+$$ language sql;
+
+
+create or replace function get_funding_sum(_research integer)
+    returns integer as
+$$
+select sum(amount)
+from funding
+where research = _research;
+$$ language sql;
