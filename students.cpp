@@ -63,7 +63,9 @@ void students::on_tableView_clicked(const QModelIndex &index) {
 
 void students::on_showResearches_clicked()
 {
-    researches = new students_researches(selected_id);
-    researches->show();
+    if (selected_id) {
+        researches = new students_researches(selected_id);
+        researches->show();
+    }
 }
 

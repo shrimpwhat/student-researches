@@ -30,20 +30,21 @@ create table students
 
 create table researches
 (
-    id          serial primary key,
-    title       varchar(255) not null,
-    department  integer references departments (id),
-    field       varchar(255) not null,
-    supervisor  integer references supervisors (id),
-    url         varchar(500) not null,
-    funding_sum integer default 0
+    id           serial primary key,
+    title        varchar(255) not null,
+    department   integer references departments (id),
+    field        varchar(255) not null,
+    supervisor   integer references supervisors (id),
+    url          varchar(500),
+    funding_sum  integer default 0,
+    report_count integer default 0
 );
 
 
 create table students_researches
 (
-    student_id  integer references students (id),
-    research_id integer references researches (id),
+    student_id  integer references students (id) on delete cascade   not null,
+    research_id integer references researches (id) on delete cascade not null,
     primary key (student_id, research_id)
 );
 
@@ -52,7 +53,7 @@ create table funding
 (
     id       serial primary key,
     source   varchar(255),
-    research integer references researches (id),
+    research integer references researches (id) on delete cascade not null,
     amount   integer,
     date     date
 );
@@ -61,9 +62,9 @@ create table funding
 create table reports
 (
     id       serial primary key,
-    name     varchar(255) not null,
+    name     varchar(255)                                         not null,
     date     date,
-    research integer references researches (id)
+    research integer references researches (id) on delete cascade not null
 );
 
 
@@ -370,6 +371,7 @@ begin
 end;
 $$ language plpgsql;
 
+
 create or replace function on_delete_department()
     returns trigger as
 $$
@@ -377,16 +379,17 @@ begin
     update researches set department = null where department = old.id;
     update supervisors set department = null where department = old.id;
     update students set department = null where department = old.id;
-    return new;
+    return old;
 end;
 $$ language plpgsql;
+
 
 create or replace function on_delete_supervisor()
     returns trigger as
 $$
 begin
     update researches set supervisor = null where supervisor = old.id;
-    return new;
+    return old;
 end;
 $$ language plpgsql;
 
@@ -432,17 +435,36 @@ end
 $$ language plpgsql;
 
 
-create or replace procedure assign_research_to_students(_research integer, _students integer[])
-    language plpgsql
-as
+create or replace function on_add_report()
+    returns trigger as
 $$
 begin
-    for student in _students
-        loop
-            insert into students_researches values (student, _research);
-        end loop;
+    update researches set report_count = report_count + 1 where id = new.research;
+    return new;
+end;
+$$ language plpgsql;
+
+
+create or replace function on_edit_report()
+    returns trigger as
+$$
+
+begin
+    update researches set report_count = report_count + 1 where id = new.research;
+    update researches set report_count = report_count - 1 where id = old.research;
+    return new;
+end;
+$$ language plpgsql;
+
+
+create or replace function on_delete_report()
+    returns trigger as
+$$
+begin
+    update researches set report_count = report_count - 1 where id = old.research;
+    return new;
 end
-$$;
+$$ language plpgsql;
 
 
 --TRIGGERS
@@ -461,14 +483,14 @@ execute function on_update_research();
 
 
 create trigger departments_delete
-    after delete
+    before delete
     on departments
     for each row
 execute function on_delete_department();
 
 
 create trigger supervisors_delete
-    after delete
+    before delete
     on supervisors
     for each row
 execute function on_delete_supervisor();
@@ -500,6 +522,27 @@ create trigger funding_update
     on funding
     for each row
 execute function on_update_funding();
+
+
+create trigger reports_add
+    after insert
+    on reports
+    for each row
+execute function on_add_report();
+
+
+create trigger reports_update
+    after update
+    on reports
+    for each row
+execute function on_edit_report();
+
+
+create trigger reports_delete
+    after delete
+    on reports
+    for each row
+execute function on_delete_report();
 
 
 -- TASKS
@@ -729,3 +772,57 @@ select sum(amount)
 from funding
 where research = _research;
 $$ language sql;
+
+
+-- 11
+-- create user admin with password 'admin';
+-- create user student with password 'student';
+--
+-- create role admin_role;
+-- create role student_role;
+--
+-- grant execute on all routines in schema public to admin_role, student_role;
+-- grant usage on all sequences in schema public to admin_role, student_role;
+-- grant select, insert, update, delete on all tables in schema public to admin_role, student_role;
+-- -- revoke select from function add_department(character varying, character varying) from student_role;
+-- -- revoke insert, update, delete on departments, supervisors, funding, students from student_role;
+--
+--
+-- grant admin_role to admin;
+-- grant student_role to student;
+
+
+-- 12
+create table olap
+(
+    id         serial primary key,
+    title      varchar(255) not null,
+    department varchar(255),
+    field      varchar(255) not null,
+    supervisor varchar(255),
+    url        varchar(500),
+    created_at timestamp default now()
+);
+
+
+create or replace function olap_trigger()
+    returns trigger
+as
+$$
+begin
+    insert into olap (title, department, field, supervisor, url)
+    values (new.title,
+            (select code from departments where id = new.department),
+            new.field,
+            (select full_name from supervisors where id = new.supervisor),
+            new.url);
+    return new;
+end
+$$ language plpgsql;
+
+
+create trigger research_inserted_for_olap
+    after insert
+    on researches
+    for each row
+execute function olap_trigger();

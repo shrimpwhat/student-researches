@@ -29,7 +29,7 @@ void researches::on_tableRefreshButton_clicked() {
     qmodel->setQuery("select id, title, field, url,"
                      "(select code from departments where department = departments.id) as department, "
                      "(select full_name from supervisors where supervisors.id = supervisor) as supervisor,"
-                     "funding_sum from researches;");
+                     "funding_sum, report_count from researches;");
     ui->tableView->setModel(qmodel);
     ui->tableView->hideColumn(0);
 }
