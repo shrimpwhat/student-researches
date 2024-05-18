@@ -10,9 +10,9 @@ create table departments
 create table supervisors
 (
     id             serial primary key,
-    full_name      varchar(255) not null,
-    email          varchar(255) unique,
-    phone          varchar(30) unique,
+    full_name      varchar(255)        not null,
+    email          varchar(255) unique not null,
+    phone          varchar(30) unique  not null,
     department     integer references departments (id),
     research_count integer default 0
 );
@@ -21,9 +21,9 @@ create table supervisors
 create table students
 (
     id         serial primary key,
-    full_name  varchar(255) not null,
-    email      varchar(255) unique,
-    phone      varchar(30) unique,
+    full_name  varchar(255)        not null,
+    email      varchar(255) unique not null,
+    phone      varchar(30) unique  not null,
     department integer references departments (id)
 );
 
@@ -67,11 +67,12 @@ create table reports
     research integer references researches (id) on delete cascade not null
 );
 
+alter default privileges revoke all on functions from public;
 
 --INDEXES
 create index idx_researches_title on researches (title);
 create index idx_students_name on students (lower(full_name));
-create index idx_supervisors_name on supervisors using brin (full_name);
+create index idx_supervisors_name on supervisors using brin (full_name) with (pages_per_range =1);
 
 
 --FUNCTIONS
@@ -588,7 +589,7 @@ begin
     else
         dep_id = new.department;
     end if;
-    insert into supervisors (full_name, department) values (new.full_name, dep_id);
+    insert into supervisors (full_name, email, phone, department) values (new.full_name, new.email, new.phone, dep_id);
     return null;
 end
 $$ language plpgsql;
@@ -734,7 +735,22 @@ where s.research_count > all (select d.research_count from departments d);
 $$ language sql;
 
 
--- CURSOR
+--8
+create or replace procedure insert_funding(_source varchar, _amount integer, _research integer, _date date)
+as
+$$
+begin
+    insert into funding (source, amount, research, date) values (_source, _amount, _research, _date);
+
+    if _amount <= 0 then
+        rollback;
+    else
+        commit;
+    end if;
+end
+$$ language plpgsql;
+
+--9
 CREATE OR REPLACE FUNCTION clear_research_count(_dep integer)
     RETURNS void AS
 $$
@@ -774,24 +790,6 @@ where research = _research;
 $$ language sql;
 
 
--- 11
--- create user admin with password 'admin';
--- create user student with password 'student';
---
--- create role admin_role;
--- create role student_role;
---
--- grant execute on all routines in schema public to admin_role, student_role;
--- grant usage on all sequences in schema public to admin_role, student_role;
--- grant select, insert, update, delete on all tables in schema public to admin_role, student_role;
--- -- revoke select from function add_department(character varying, character varying) from student_role;
--- -- revoke insert, update, delete on departments, supervisors, funding, students from student_role;
---
---
--- grant admin_role to admin;
--- grant student_role to student;
-
-
 -- 12
 create table olap
 (
@@ -826,3 +824,42 @@ create trigger research_inserted_for_olap
     on researches
     for each row
 execute function olap_trigger();
+
+
+-- 11
+create user admin with password 'admin';
+create user student with password 'student';
+
+create role admin_role;
+create role student_role;
+
+grant usage on all sequences in schema public to admin_role, student_role;
+
+grant select on all tables in schema public to admin_role, student_role;
+grant insert, update, delete on all tables in schema public to admin_role;
+grant insert, update, delete on students, researches, students_researches, reports, olap to student_role;
+grant update on departments, supervisors to student_role;
+
+grant execute on all routines in schema public to admin_role;
+grant execute on function
+    add_student(varchar, varchar,varchar, integer),
+    edit_student(integer, varchar, varchar, varchar, integer),
+    delete_student(integer),
+
+    add_research(varchar, integer, varchar, integer, varchar),
+    edit_research(integer, varchar, integer, varchar, integer, varchar),
+    delete_research(integer),
+
+    add_report(varchar, date, integer),
+    edit_report(integer, varchar, date, integer),
+    delete_report(integer),
+
+    assign_research(integer, integer),
+    unassign_research(integer, integer),
+
+    modify_department_research_count(integer, integer),
+    modify_supervisor_research_count(integer, integer)
+    to student_role;
+
+grant admin_role to admin;
+grant student_role to student;

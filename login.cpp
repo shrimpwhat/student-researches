@@ -4,15 +4,12 @@
 #include <QDebug>
 #include <QMessageBox>
 
-Login::Login(QWidget *parent) :
-    QGroupBox(parent),
-    ui(new Ui::Login)
-{
+Login::Login(QWidget *parent) : QGroupBox(parent),
+                                ui(new Ui::Login) {
     ui->setupUi(this);
 }
 
-Login::~Login()
-{
+Login::~Login() {
     delete ui;
     db.close();
 }
@@ -21,8 +18,8 @@ void Login::InitDatabaseDebug() {
     QString host = "localhost";
     uint port = 5432;
     QString database_name = "nirs";
-    QString user = "postgres";
-    QString password = "p120s45";
+    QString user = "student";
+    QString password = "student";
     db = QSqlDatabase::addDatabase("QPSQL");
     db.setHostName(host);
     db.setPort(port);
@@ -31,7 +28,7 @@ void Login::InitDatabaseDebug() {
     db.setPassword(password);
 }
 
-void Login::InitDatabase()  {
+void Login::InitDatabase() {
     QString host = ui->ServerInput->text();
     uint port = ui->PortInput->text().toUInt();
     QString database_name = ui->DbNameInput->text();
@@ -45,10 +42,9 @@ void Login::InitDatabase()  {
     db.setPassword(password);
 }
 
-void Login::on_ConnectButton_clicked()
-{
-//    InitDatabase();
-    InitDatabaseDebug();
+void Login::on_ConnectButton_clicked() {
+    InitDatabase();
+    // InitDatabaseDebug();
     if (!db.open()) {
         QMessageBox::critical(nullptr, "Ошибка", "Соединение не установлено");
         return;

@@ -13,6 +13,7 @@ students_researches::students_researches(int student_id, QWidget* parent): QWidg
     ui->setupUi(this);
     qmodel = new QSqlQueryModel(this);
     this->student_id = student_id;
+    update_comboBox();
 }
 
 
@@ -24,7 +25,10 @@ students_researches::~students_researches()
 
 
 void students_researches::on_tableRefreshButton_clicked() {
-    qmodel->setQuery(QString("select * from researches where id in (select research_id from students_researches where student_id = %1);").arg(student_id));
+    qmodel->setQuery(QString("select id, title, field, url,"
+                             "(select code from departments where department = departments.id) as department, "
+                             "(select full_name from supervisors where supervisors.id = supervisor) as supervisor,"
+                             "funding_sum, report_count from researches where id in (select research_id from students_researches where student_id = %1);").arg(student_id));
     ui->tableView->setModel(qmodel);
     ui->tableView->hideColumn(0);
     this->update_comboBox();
