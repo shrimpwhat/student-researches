@@ -649,20 +649,35 @@ execute function supervisors_view_delete();
 
 
 --3.c
-create materialized view students_view as
-select *
-from students;
+create materialized view researches_view as
+select r.title,
+       r.field,
+       r.url,
+       r.funding_sum,
+       r.report_count,
+       d.code      as department,
+       s.full_name as supervisor
+from researches as r
+         join departments d on d.id = r.department
+         join supervisors s on d.id = s.department;
 
 
 --3.d подзапрос в from
-create or replace function get_students_researches(_student integer)
-    returns character varying
+create or replace function info_researches()
+    returns table
+            (
+                title     varchar(255),
+                field     varchar(255),
+                name      varchar(255),
+                full_name varchar(255)
+            )
 as
 $$
-select title
+select title, field, res.name, res.full_name
 from (select *
-      from researches
-      where id in (select research_id from students_researches where student_id = _student)) as r
+      from researches as r
+               join departments d on d.id = r.department
+               join supervisors s on d.id = s.department) as res
 $$ language sql;
 
 
@@ -677,23 +692,35 @@ where exists(select * from departments as d where d.id = s.department);
 $$ language sql;
 
 
-create or replace function get_researches()
-    returns setof researches
+create or replace function get_dep_with_highest_funded_research()
+    returns table
+            (
+                department_name         character varying,
+                highest_funded_research character varying
+            )
 as
 $$
-select r.*
-from researches as r
-where exists(select * from supervisors as s where s.id = r.supervisor);
+select d.name    AS department_name,
+       (select r.title
+        FROM researches r
+        WHERE r.department = d.id
+        ORDER BY r.funding_sum DESC
+        LIMIT 1) AS highest_funded_research
+from departments d;
 $$ language sql;
 
 
-create or replace function get_funding()
-    returns setof funding
+create or replace function get_students_research_count()
+    returns table
+            (
+                student_name   character varying,
+                research_count integer
+            )
 as
 $$
-select f.*
-from funding as f
-where exists(select * from researches as r where r.id = f.research);
+SELECT s.full_name                                                        as student_name,
+       (select count(*) from students_researches where student_id = s.id) as research_count
+from students as s
 $$ language sql;
 
 
@@ -736,39 +763,41 @@ $$ language sql;
 
 
 --8
-create or replace procedure insert_funding(_source varchar, _amount integer, _research integer, _date date)
+create or replace procedure set_dep_sup_on_research(_id integer, _department integer, _supervisors integer)
 as
 $$
 begin
-    insert into funding (source, amount, research, date) values (_source, _amount, _research, _date);
-
-    if _amount <= 0 then
-        rollback;
-    else
+    begin
+        update researches set supervisor = _supervisors, department = _department where id = _id;
         commit;
-    end if;
+    exception
+        when others then
+            rollback;
+            raise exception 'Ошибка изменения кафедры и руководителя: %', SQLERRM;
+    end;
 end
 $$ language plpgsql;
 
 --9
-CREATE OR REPLACE FUNCTION clear_research_count(_dep integer)
-    RETURNS void AS
+create or replace function clear_research_count(_dep integer)
+    returns void as
 $$
-DECLARE
+declare
     _curs refcursor;
     _rec  record;
-BEGIN
-    OPEN _curs FOR SELECT * FROM supervisors where department = _dep;
+begin
+    open _curs for select * from supervisors where department = _dep;
 
-    LOOP
-        FETCH NEXT FROM _curs INTO _rec;
-        EXIT WHEN NOT FOUND;
-        UPDATE supervisors SET research_count = 0 where current of _curs;
-    END LOOP;
+    loop
+        fetch next from _curs into _rec;
+        exit when not found;
+        update supervisors set research_count = 0 where current of _curs;
+    end loop;
 
-    CLOSE _curs;
-END
-$$ LANGUAGE plpgsql;
+    close _curs;
+end
+$$ language plpgsql;
+
 
 
 -- 10
